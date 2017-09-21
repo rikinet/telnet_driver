@@ -45,7 +45,7 @@ class IosDriver(TelnetDriver):
 
         :return: ログインが成功したときは True、失敗したときは False を返す
         :rtype: bool"""
-        if self.telnet == None:
+        if self.telnet is None:
             raise ConnectionError()
         try:
             password_byte = (self.password + '\r').encode(self.encoding)
@@ -61,10 +61,9 @@ class IosDriver(TelnetDriver):
 
     def enable(self):
         """特権モードへ移行する。ログインが済んでいること。"""
-        self.prompt = 'Password:'
-        self.say('enable')
+        self.say('enable', expect='Password:')
+        self.say(self.enable_password, expect=self.prompt_base + '#')
         self.prompt = self.prompt_base + '#'
-        self.say(self.enable_password)
         self.enabled = True
 
     def off_page_mode(self):

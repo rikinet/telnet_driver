@@ -37,7 +37,7 @@ class Gs900mDriver(TelnetDriver):
 
         :return: ログインが成功したときは True、失敗したときは False を返す。
         :rtype: bool"""
-        if self.telnet == None:
+        if self.telnet is None:
             raise ConnectionError()
         try:
             user_byte = (self.user + '\r').encode()

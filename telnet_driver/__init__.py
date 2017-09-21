@@ -28,25 +28,32 @@ class TelnetDriver:
 
     def connect(self):
         """リモートホストに TELNET 接続する。
-        既に接続済みだった場合はクローズして、再度接続する。"""
+        既に接続済みだった場合はクローズして、再度接続する。
+
+        :raises ConnectionError: TELNET接続に失敗したとき"""
         if self.telnet is None:
             self.telnet = Telnet()
         else:
             self.telnet.close()
-        self.telnet.open(self.host, port=self.port)
+        try:
+            self.telnet.open(self.host, port=self.port)
+        except Exception as e:
+            raise ConnectionError from e
 
     def close(self):
         """TELNET接続を終了する。"""
         self.telnet.close()
         self.telnet = None
 
-    def say(self, command, timeout=5):
+    def say(self, command, expect=None, timeout=5):
         """コマンドを送信し、プロンプトを待つ。
         プロンプトまでの応答を文字列として返す。
         プロンプトを設定してないときの動作は保証しない。
 
         :param command: リモートホストに送信する文字列。改行を含まない
         :type command: str
+        :param expect: prompt プロパティ以外を待つときに与える
+        :type expect: str
         :param timeout: プロンプトが応答に現れるまで待ち受ける秒数
         :type timeout: int
         :return: 最後のプロンプトを含むリモートホストの出力文字列
@@ -54,7 +61,11 @@ class TelnetDriver:
         if self.telnet is None:
             return ''
         cmd_byte = (command + '\r').encode(self.encoding)
-        prompt_byte = self.prompt.encode(self.encoding)
+        if expect:
+            p = expect
+        else:
+            p = self.prompt
+        prompt_byte = p.encode(self.encoding)
         try:
             self.telnet.write(cmd_byte)
             buf = self.telnet.read_until(prompt_byte, timeout)
