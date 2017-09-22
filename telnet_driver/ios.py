@@ -44,7 +44,9 @@ class IosDriver(TelnetDriver):
         あらかじめ connect() しておくこと。
 
         :return: ログインが成功したときは True、失敗したときは False を返す
-        :rtype: bool"""
+        :rtype: bool
+        :raises ConnectionError: 接続に失敗したとき
+        """
         if self.telnet is None:
             raise ConnectionError()
         try:
@@ -60,11 +62,20 @@ class IosDriver(TelnetDriver):
             return True
 
     def enable(self):
-        """特権モードへ移行する。ログインが済んでいること。"""
-        self.say('enable', expect='Password:')
-        self.say(self.enable_password, expect=self.prompt_base + '#')
-        self.prompt = self.prompt_base + '#'
-        self.enabled = True
+        """特権モードへ移行する。ログインが済んでいること。
+
+        :return: 成功したとき True、それ以外は False
+        :rtype: bool
+        """
+        try:
+            self.say('enable', expect='Password:')
+            self.say(self.enable_password, expect=self.prompt_base + '#')
+            self.prompt = self.prompt_base + '#'
+            self.enabled = True
+        except TimeoutError as _:
+            return False
+        else:
+            return True
 
     def off_page_mode(self):
         """コンソール出力のページ分割を抑制する。"""

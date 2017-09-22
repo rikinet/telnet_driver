@@ -36,7 +36,9 @@ class Gs900mDriver(TelnetDriver):
         あらかじめ connect() しておくこと。
 
         :return: ログインが成功したときは True、失敗したときは False を返す。
-        :rtype: bool"""
+        :rtype: bool
+        :raises ConnectionError: 接続に失敗したとき
+        """
         if self.telnet is None:
             raise ConnectionError()
         try:

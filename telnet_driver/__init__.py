@@ -52,12 +52,15 @@ class TelnetDriver:
 
         :param command: リモートホストに送信する文字列。改行を含まない
         :type command: str
-        :param expect: prompt プロパティ以外を待つときに与える
+        :param expect: コマンド実行の終了を判断するプロンプト。与えないときは prompt プロパティが使われる
         :type expect: str
         :param timeout: プロンプトが応答に現れるまで待ち受ける秒数
         :type timeout: int
         :return: 最後のプロンプトを含むリモートホストの出力文字列
-        :rtype: str"""
+        :rtype: str
+        :raises EOFError: 読み込めるものがなかったとき
+        :raises TimeoutError: timeout の時間経過してもプロンプトまで読めなかったとき
+        """
         if self.telnet is None:
             return ''
         cmd_byte = (command + '\r').encode(self.encoding)
@@ -69,8 +72,9 @@ class TelnetDriver:
         try:
             self.telnet.write(cmd_byte)
             buf = self.telnet.read_until(prompt_byte, timeout)
-        except EOFError as e:
-            print(e)
-            return ''
+            if prompt_byte not in buf:
+                raise TimeoutError(buf.decode(self.encoding))
+        except EOFError as _:
+            raise
         else:
             return buf.decode(self.encoding)
