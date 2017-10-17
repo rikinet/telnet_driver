@@ -37,6 +37,8 @@ class TelnetDriver:
             self.telnet.close()
         try:
             self.telnet.open(self.host, port=self.port)
+        except TimeoutError as e:
+            raise ConnectionError from e
         except Exception as e:
             raise ConnectionError from e
 

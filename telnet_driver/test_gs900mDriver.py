@@ -11,14 +11,38 @@ class TestGs900mDriver(TestCase):
         self.assertTrue('Console Information' in response)
         driver.close()
 
-    def test_timeout(self):
+    def test_say_timeout(self):
         driver = Gs900mDriver('10.0.6.7')
         driver.connect()
         driver.login()
         driver.prompt = 'random >'  # 誤ったプロンプトを与えてタイムアウトを誘う
         try:
-            response = driver.say('show console')
+            driver.say('show console')
         except Exception as e:
             print(e.args)
+        else:
+            self.fail('time out not occurred.')
         finally:
             driver.close()
+
+    def test_connect_timeout(self):
+        driver = Gs900mDriver('127.0.0.254')  # 存在しないアドレスを指定してタイムアウトを誘う
+        try:
+            driver.connect()
+        except ConnectionError as e:
+            print(e.args)
+        else:
+            self.fail('Connection not timed out.')
+        finally:
+            driver.close()
+
+    def test_reconnect(self):
+        driver = Gs900mDriver('10.0.6.7')
+        driver.connect()
+        driver.login()
+        driver.close()
+        driver.connect()
+        driver.login()
+        response = driver.say('show console')
+        self.assertTrue('Console Information' in response)
+        driver.close()
