@@ -39,6 +39,11 @@ class IosDriver(TelnetDriver):
         self.enabled = False
         self.page_mode = True
 
+    def login(self):
+        """当面はユーザ名のないログインのみサポートする。
+        ユーザ名のあるログインをサポートする必要があるなら修整が必要。"""
+        return self.login_simple()
+
     def login_simple(self):
         """ユーザ名なし、パスワードのみでログインする。
         あらかじめ connect() しておくこと。
