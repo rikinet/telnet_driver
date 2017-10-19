@@ -26,6 +26,9 @@ class TelnetDriver:
         self.prompt = None
         self.telnet = None
 
+    def __repr__(self):
+        return 'TelnetDriver(\'{}\', port={})'.format(self.host, self.port)
+
     def connect(self):
         """リモートホストに TELNET 接続する。
         既に接続済みだった場合はクローズして、再度接続する。

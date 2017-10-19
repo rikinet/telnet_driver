@@ -8,7 +8,8 @@ from telnet_driver import TelnetDriver
 class Gs900mDriver(TelnetDriver):
     """Allied Telesis 製スイッチ CentreCOM GS900M のコンソールを操作する"""
 
-    def __init__(self, host, port=TELNET_PORT, user='manager', password='friend', encoding='shift_jis', prompt='Manager > '):
+    def __init__(self, host, port=TELNET_PORT, user='manager', password='friend', encoding='shift_jis',
+                 prompt='Manager > '):
         """初期化する。
 
         :param host: リモートホスト名またはIPアドレス
@@ -30,6 +31,10 @@ class Gs900mDriver(TelnetDriver):
         self.user = user
         self.password = password
         self.prompt = prompt
+
+    def __repr__(self):
+        return 'Gs900mDriver(\'{}\', port={}, user=\'{}\', password=\'{}\')'.format(self.host, self.port, self.user,
+                                                                                    self.password)
 
     def login(self):
         """与えられた認証パラメータでログインする。
