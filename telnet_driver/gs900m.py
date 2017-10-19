@@ -33,8 +33,8 @@ class Gs900mDriver(TelnetDriver):
         self.prompt = prompt
 
     def __repr__(self):
-        return 'Gs900mDriver(\'{}\', port={}, user=\'{}\', password=\'{}\')'.format(self.host, self.port, self.user,
-                                                                                    self.password)
+        return 'Gs900mDriver({!r}, port={!r}, user={!r}, password={!r})'.format(self.host, self.port, self.user,
+                                                                              self.password)
 
     def login(self):
         """与えられた認証パラメータでログインする。

@@ -46,3 +46,9 @@ class TestGs900mDriver(TestCase):
         response = driver.say('show console')
         self.assertTrue('Console Information' in response)
         driver.close()
+
+    def test_repr(self):
+        driver = Gs900mDriver('10.0.6.7')
+        r = repr(driver)
+        self.assertIn('10.0.6.7', r)
+        print(r)

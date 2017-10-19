@@ -35,7 +35,9 @@ class IosDriver(TelnetDriver):
         self.page_mode = False
 
     def __repr__(self):
-        return 'IosDriver(\'\{}\', port={}, password=\'{}\', enable_password=\'{}\')'.format(self.host, self.port, self.password, self.enable_password)
+        return 'IosDriver({!r}, port={}, password={!r}, enable_password={!r})'.format(self.host, self.port,
+                                                                                      self.password,
+                                                                                      self.enable_password)
 
     def connect(self):
         super().connect()
