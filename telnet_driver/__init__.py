@@ -4,6 +4,9 @@
 対話を行うための基礎ライブラリ"""
 
 from telnetlib import Telnet, TELNET_PORT
+from logging import getLogger
+
+logger = getLogger(__name__)
 
 
 class TelnetDriver:
@@ -67,6 +70,10 @@ class TelnetDriver:
         :raises TimeoutError: timeout の時間経過してもプロンプトまで読めなかったとき
         """
         if self.telnet is None:
+            logger.debug('No TELNET connection. required to setting up.')
+            return ''
+        if command is None:
+            logger.debug('No command given. do nothing.')
             return ''
         cmd_byte = (command + '\r').encode(self.encoding)
         if expect:

@@ -1,8 +1,12 @@
 # Copyright (c) 2017 Riki Network Systems, Inc.
 # All rights reserved.
 
+import sys
 from telnetlib import TELNET_PORT
 from telnet_driver import TelnetDriver
+from logging import getLogger
+
+logger = getLogger(__name__)
 
 
 class Gs900mDriver(TelnetDriver):
@@ -56,7 +60,7 @@ class Gs900mDriver(TelnetDriver):
             self.telnet.write(password_byte)
             buf = self.telnet.read_until(prompt_byte, timeout=5)
         except EOFError as e:
-            print(e)
+            logger.warning('Failed to login.', exc_info=sys.exc_info())
             return False
         else:
             return True

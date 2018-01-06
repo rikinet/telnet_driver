@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 
 setup(name='telnet_driver',
-      version='1.3',
+      version='1.3.1',
       description='Utilities to talk with remote host over TELNET',
       url='http://github.com/rikinet/telnet_driver',
       author='Riki Network Systems, Inc.',

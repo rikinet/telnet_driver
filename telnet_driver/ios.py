@@ -1,8 +1,12 @@
 # Copyright (c) 2017 Riki Network Systems, Inc.
 # All rights reserved.
 
+import sys
 from telnetlib import TELNET_PORT
 from telnet_driver import TelnetDriver
+from logging import getLogger
+
+logger = getLogger(__name__)
 
 
 class IosDriver(TelnetDriver):
@@ -66,7 +70,7 @@ class IosDriver(TelnetDriver):
             self.telnet.write(password_byte)
             buf = self.telnet.read_until(prompt_byte, timeout=5)
         except EOFError as e:
-            print(e)
+            logger.warning('Failed to login.', exc_info=sys.exc_info())
             return False
         else:
             return True
@@ -83,6 +87,7 @@ class IosDriver(TelnetDriver):
             self.prompt = self.prompt_base + '#'
             self.enabled = True
         except TimeoutError as _:
+            logger.warning('Failed to ', exc_info=sys.exc_info())
             return False
         else:
             return True

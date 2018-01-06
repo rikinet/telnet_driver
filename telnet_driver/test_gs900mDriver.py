@@ -3,8 +3,10 @@ from .gs900m import Gs900mDriver
 
 
 class TestGs900mDriver(TestCase):
+    HOST_ADDRESS = '10.0.6.7'
+
     def test_say(self):
-        driver = Gs900mDriver('10.0.6.7')
+        driver = Gs900mDriver(TestGs900mDriver.HOST_ADDRESS)
         driver.connect()
         driver.login()
         response = driver.say('show console')
@@ -12,7 +14,7 @@ class TestGs900mDriver(TestCase):
         driver.close()
 
     def test_say_timeout(self):
-        driver = Gs900mDriver('10.0.6.7')
+        driver = Gs900mDriver(TestGs900mDriver.HOST_ADDRESS)
         driver.connect()
         driver.login()
         driver.prompt = 'random >'  # 誤ったプロンプトを与えてタイムアウトを誘う
@@ -25,8 +27,17 @@ class TestGs900mDriver(TestCase):
         finally:
             driver.close()
 
+    def test_say_null_command(self):
+        driver = Gs900mDriver(TestGs900mDriver.HOST_ADDRESS)
+        driver.connect()
+        driver.login()
+        response = driver.say(None)
+        self.assertFalse(response)
+        driver.close()
+
     def test_connect_timeout(self):
-        driver = Gs900mDriver('127.0.0.254')  # 存在しないアドレスを指定してタイムアウトを誘う
+        """存在しないアドレスを指定してタイムアウトを誘う"""
+        driver = Gs900mDriver('127.0.0.254')
         try:
             driver.connect()
         except ConnectionError as e:
@@ -37,7 +48,7 @@ class TestGs900mDriver(TestCase):
             driver.close()
 
     def test_reconnect(self):
-        driver = Gs900mDriver('10.0.6.7')
+        driver = Gs900mDriver(TestGs900mDriver.HOST_ADDRESS)
         driver.connect()
         driver.login()
         driver.close()
@@ -48,7 +59,7 @@ class TestGs900mDriver(TestCase):
         driver.close()
 
     def test_repr(self):
-        driver = Gs900mDriver('10.0.6.7')
+        driver = Gs900mDriver(TestGs900mDriver.HOST_ADDRESS)
         r = repr(driver)
-        self.assertIn('10.0.6.7', r)
+        self.assertIn(TestGs900mDriver.HOST_ADDRESS, r)
         print(r)
