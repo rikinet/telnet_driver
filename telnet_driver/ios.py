@@ -12,7 +12,7 @@ logger = getLogger(__name__)
 class IosDriver(TelnetDriver):
     """Cisco 製ネットワーク機器、特に IOS 搭載機のコンソールを操作する"""
 
-    def __init__(self, host, port=TELNET_PORT, password='cisco', enable_password='cisco', encoding='utf-8', prompt_base='router'):
+    def __init__(self, host, port=TELNET_PORT, password='cisco', enable_password='cisco', encoding='utf-8', sys_name='router'):
         """初期化する。
 
         :param host: リモートホスト名またはIPアドレス
@@ -25,16 +25,15 @@ class IosDriver(TelnetDriver):
         :type enable_password: str
         :param encoding: コンソールで使用する文字コード名
         :type encoding: str
-        :param prompt_base: プロンプト文字列でモードを表す '>' や '#' を除いた部分
-        :type prompt_base: str"""
+        :param sys_name: プロンプト文字列でモードを表す '>' や '#' を除いた部分
+        :type sys_name: str"""
         super().__init__(host)
         self.host = host
         self.port = port
         self.encoding = encoding
         self.password = password
         self.enable_password = enable_password
-        self.prompt_base = prompt_base
-        self.prompt = self.prompt_base + '>'
+        self.sys_name = sys_name
         self.enabled = False
         self.page_mode = False
 
@@ -42,6 +41,10 @@ class IosDriver(TelnetDriver):
         return 'IosDriver({!r}, port={}, password={!r}, enable_password={!r})'.format(self.host, self.port,
                                                                                       self.password,
                                                                                       self.enable_password)
+
+    @property
+    def prompt(self):
+        return self.sys_name + ('#' if self.enabled else '>')
 
     def connect(self):
         super().connect()
@@ -83,11 +86,10 @@ class IosDriver(TelnetDriver):
         """
         try:
             self.say('enable', expect='Password:')
-            self.say(self.enable_password, expect=self.prompt_base + '#')
-            self.prompt = self.prompt_base + '#'
+            self.say(self.enable_password, expect=self.sys_name + '#')
             self.enabled = True
-        except TimeoutError as _:
-            logger.warning('Failed to ', exc_info=sys.exc_info())
+        except TimeoutError as e:
+            logger.warning('%s: Failed to raise to privileged state. buffer="%s"', self.host, e.args, exc_info=sys.exc_info())
             return False
         else:
             return True

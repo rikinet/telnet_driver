@@ -3,17 +3,22 @@
 """TELNET 接続を介してリモートホストとコマンドラインベースの
 対話を行うための基礎ライブラリ"""
 
-from telnetlib import Telnet, TELNET_PORT
+from telnetlib import Telnet
 from logging import getLogger
 
 logger = getLogger(__name__)
+
+
+class NoPromptGivenError(Exception):
+    """プロンプトまたは待ち受けの文字列を与えずに say() を呼び出したことを表す。"""
+    pass
 
 
 class TelnetDriver:
     """TELNET コンソールを操作する。
     このクラスを継承して機種毎の差異を実装すること。"""
 
-    def __init__(self, host, port=TELNET_PORT, encoding='utf-8'):
+    def __init__(self, host, port=23, encoding='utf-8'):
         """最低限の初期化をする。
 
         :param host: リモートホスト名またはIPアドレス
@@ -26,7 +31,6 @@ class TelnetDriver:
         self.host = host
         self.port = port
         self.encoding = encoding
-        self.prompt = None
         self.telnet = None
 
     def __repr__(self):
@@ -56,7 +60,6 @@ class TelnetDriver:
     def say(self, command, expect=None, timeout=5):
         """コマンドを送信し、プロンプトを待つ。
         プロンプトまでの応答を文字列として返す。
-        プロンプトを設定してないときの動作は保証しない。
 
         :param command: リモートホストに送信する文字列。改行を含まない
         :type command: str
@@ -66,6 +69,7 @@ class TelnetDriver:
         :type timeout: int
         :return: 最後のプロンプトを含むリモートホストの出力文字列
         :rtype: str
+        :raises NoPromptGivenError: プロンプトまたは待ち受けの文字列が与えられなかったとき
         :raises EOFError: 読み込めるものがなかったとき
         :raises TimeoutError: timeout の時間経過してもプロンプトまで読めなかったとき
         """
@@ -78,8 +82,10 @@ class TelnetDriver:
         cmd_byte = (command + '\r').encode(self.encoding)
         if expect:
             p = expect
+        elif self.__getattribute__('prompt'):
+            p = self.__getattribute__('prompt')
         else:
-            p = self.prompt
+            raise NoPromptGivenError
         prompt_byte = p.encode(self.encoding)
         try:
             self.telnet.write(cmd_byte)
